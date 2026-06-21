@@ -4,10 +4,11 @@ import EmojiViewer from "./components/EmojiViewer";
 const EMOJI_LIST = [
   { id: "happy", name: "Happy Emoji", file: "/models/happy.glb" },
   { id: "drunk", name: "Drunk Emoji", file: "/models/drunk_emoji.glb" },
-  { id: "angry", name: "Angry Emoji", file: "/models/angry.glb" },
+  { id: "horn", name: "Horn Emoji", file: "/models/horn_emoji.glb" },
+  { id: "money", name: "Money Emoji", file: "/models/money_emoji.glb" },
 ];
 
-const DEFAULT_COLOR = "#666666";  
+const DEFAULT_COLOR = "#666666";
 const INITIAL_POSITION: [number, number, number] = [0, 1.8, 0];
 const INITIAL_ROTATION: [number, number, number] = [0, 0, 0];
 
