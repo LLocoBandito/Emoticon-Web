@@ -12,7 +12,6 @@ const DEFAULT_COLOR = "#666666";
 const INITIAL_POSITION: [number, number, number] = [0, 1.8, 0];
 const INITIAL_ROTATION: [number, number, number] = [0, 0, 0];
 
-// Nilai sensitivitas perubahan data per sekali klik tombol
 const MOVE_STEP = 0.1;
 const ROTATE_STEP = 0.1;
 
@@ -21,7 +20,6 @@ export default function App() {
   const [emojiColors, setEmojiColors] = useState<Record<string, string>>({});
   const [stickerText, setStickerText] = useState("MAS HERI NYAWIT");
 
-  // State untuk koordinat posisi dan rotasi tulisan
   const [textPosition, setTextPosition] =
     useState<[number, number, number]>(INITIAL_POSITION);
   const [textRotation, setTextRotation] =
@@ -52,7 +50,6 @@ export default function App() {
     setEmojiColors((prev) => ({ ...prev, [partName]: newColor }));
   };
 
-  // Fungsi pengubah posisi teks secara dinamis via Button
   const updatePosition = (index: number, val: number) => {
     setTextPosition((prev) => {
       const next = [...prev] as [number, number, number];
@@ -61,7 +58,6 @@ export default function App() {
     });
   };
 
-  // Fungsi pengubah rotasi teks secara dinamis via Button
   const updateRotation = (index: number, val: number) => {
     setTextRotation((prev) => {
       const next = [...prev] as [number, number, number];
@@ -70,7 +66,6 @@ export default function App() {
     });
   };
 
-  // Reset teks ke posisi awal semula
   const handleResetTransform = () => {
     setTextPosition(INITIAL_POSITION);
     setTextRotation(INITIAL_ROTATION);
@@ -88,146 +83,63 @@ export default function App() {
     document.body.removeChild(downloadLink);
   };
 
-  // Desain komponen tombol kecil agar seragam
-  const btnStyle = {
-    padding: "6px 12px",
-    fontSize: "12px",
-    fontWeight: "bold",
-    cursor: "pointer",
-    backgroundColor: "#fff",
-    border: "1px solid #ccc",
-    borderRadius: "4px",
-  };
-
   return (
-    <div style={{ fontFamily: "sans-serif", padding: "20px" }}>
-      <h1 style={{ textAlign: "center" }}>3D Sticker Studio</h1>
+    <div style={styles.container}>
+      <h1 style={styles.title}>🎨 3D Sticker Studio</h1>
 
-      <div
-        style={{
-          display: "flex",
-          gap: "20px",
-          marginTop: "20px",
-          minHeight: "600px",
-        }}
-      >
+      <div style={styles.workspace}>
         {/* PANEL KIRI: Pilihan Model */}
-        <div
-          style={{
-            width: "200px",
-            borderRight: "1px solid #eee",
-            paddingRight: "15px",
-            display: "flex",
-            flexDirection: "column",
-            gap: "10px",
-          }}
-        >
-          <h3 style={{ margin: "0 0 5px 0" }}>Pilih Emoji:</h3>
-          {EMOJI_LIST.map((emoji) => {
-            const isActive = emoji.id === currentModel.id;
-            return (
-              <button
-                key={emoji.id}
-                onClick={() => handleSelectModel(emoji)}
-                style={{
-                  padding: "12px",
-                  borderRadius: "8px",
-                  border: isActive ? "2px solid #007bff" : "1px solid #ccc",
-                  backgroundColor: isActive ? "#e6f2ff" : "#fff",
-                  color: isActive ? "#007bff" : "#333",
-                  fontWeight: isActive ? "bold" : "normal",
-                  cursor: "pointer",
-                  textAlign: "left",
-                }}
-              >
-                {emoji.name}
-              </button>
-            );
-          })}
+        <div style={styles.sidebarLeft}>
+          <h3 style={styles.sectionTitle}>Pilih Emoji</h3>
+          <div style={styles.buttonGroupVertical}>
+            {EMOJI_LIST.map((emoji) => {
+              const isActive = emoji.id === currentModel.id;
+              return (
+                <button
+                  key={emoji.id}
+                  onClick={() => handleSelectModel(emoji)}
+                  style={{
+                    ...styles.modelButton,
+                    ...(isActive ? styles.modelButtonActive : {}),
+                  }}
+                >
+                  {emoji.name}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* AREA TENGAH: Editor & Canvas */}
-        <div
-          style={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: "15px",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              width: "100%",
-              maxWidth: "400px",
-              gap: "5px",
-            }}
-          >
-            <label style={{ fontWeight: "bold", fontSize: "14px" }}>
-              Tambahkan Tulisan Stiker:
-            </label>
+        <div style={styles.mainContent}>
+          <div style={styles.inputWrapper}>
+            <label style={styles.label}>Tambahkan Tulisan Stiker:</label>
             <input
               type="text"
               value={stickerText}
               onChange={(e) => setStickerText(e.target.value)}
-              style={{
-                padding: "10px",
-                borderRadius: "8px",
-                border: "1px solid #ccc",
-                fontSize: "16px",
-              }}
+              style={styles.textInput}
+              placeholder="Ketik teks stiker..."
             />
           </div>
 
-          <div
-            style={{
-              display: "flex",
-              gap: "10px",
-              flexWrap: "wrap",
-              justifyContent: "center",
-            }}
-          >
+          {/* Color Pickers */}
+          <div style={styles.colorPickerContainer}>
             {Object.keys(emojiColors).map((partName) => (
-              <div
-                key={partName}
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  border: "1px solid #ddd",
-                  padding: "6px 12px",
-                  borderRadius: "8px",
-                  backgroundColor: "#fafafa",
-                }}
-              >
-                <span
-                  style={{
-                    fontSize: "11px",
-                    fontWeight: "bold",
-                    marginBottom: "4px",
-                    textTransform: "capitalize",
-                  }}
-                >
-                  {partName}
-                </span>
+              <div key={partName} style={styles.colorCard}>
+                <span style={styles.colorLabel}>{partName}</span>
                 <input
                   type="color"
                   value={emojiColors[partName]}
                   onChange={(e) => handleColorChange(partName, e.target.value)}
+                  style={styles.colorInput}
                 />
               </div>
             ))}
           </div>
 
-          <div
-            style={{
-              border: "1px solid #ddd",
-              borderRadius: "12px",
-              overflow: "hidden",
-            }}
-          >
+          {/* 3D Canvas Box */}
+          <div style={styles.canvasContainer}>
             <EmojiViewer
               modelPath={currentModel.file}
               colors={emojiColors}
@@ -238,69 +150,30 @@ export default function App() {
             />
           </div>
 
-          <button
-            onClick={handleDownloadSticker}
-            style={{
-              padding: "12px 30px",
-              backgroundColor: "#28a745",
-              color: "white",
-              border: "none",
-              borderRadius: "8px",
-              fontSize: "16px",
-              fontWeight: "bold",
-              cursor: "pointer",
-            }}
-          >
+          <button onClick={handleDownloadSticker} style={styles.downloadButton}>
             💾 Unduh Stiker PNG
           </button>
         </div>
 
-        {/* PANEL KANAN: Tombol Controller Posisi & Rotasi */}
-        <div
-          style={{
-            width: "240px",
-            borderLeft: "1px solid #eee",
-            paddingLeft: "20px",
-            display: "flex",
-            flexDirection: "column",
-            gap: "20px",
-          }}
-        >
-          <h3 style={{ margin: "0" }}>🎛️ Kontrol Tulisan</h3>
+        {/* PANEL KANAN: Tombol Controller */}
+        <div style={styles.sidebarRight}>
+          <h3 style={styles.sectionTitle}>🎛️ Kontrol Tulisan</h3>
 
           {/* SEKSI POSISI */}
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "10px",
-              borderBottom: "1px solid #eee",
-              paddingBottom: "15px",
-            }}
-          >
-            <span
-              style={{ fontWeight: "bold", fontSize: "14px", color: "#555" }}
-            >
-              📍 Mengatur Posisi
-            </span>
+          <div style={styles.controlGroup}>
+            <span style={styles.controlGroupTitle}>📍 Mengatur Posisi</span>
 
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <span style={{ fontSize: "13px" }}>Kanan / Kiri (X):</span>
-              <div style={{ display: "flex", gap: "5px" }}>
+            <div style={styles.controlRow}>
+              <span style={styles.controlLabel}>Kiri / Kanan (X)</span>
+              <div style={styles.btnRow}>
                 <button
-                  style={btnStyle}
+                  style={styles.controlBtn}
                   onClick={() => updatePosition(0, -MOVE_STEP)}
                 >
                   ◀
                 </button>
                 <button
-                  style={btnStyle}
+                  style={styles.controlBtn}
                   onClick={() => updatePosition(0, MOVE_STEP)}
                 >
                   ▶
@@ -308,23 +181,17 @@ export default function App() {
               </div>
             </div>
 
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <span style={{ fontSize: "13px" }}>Atas / Bawah (Y):</span>
-              <div style={{ display: "flex", gap: "5px" }}>
+            <div style={styles.controlRow}>
+              <span style={styles.controlLabel}>Atas / Bawah (Y)</span>
+              <div style={styles.btnRow}>
                 <button
-                  style={btnStyle}
+                  style={styles.controlBtn}
                   onClick={() => updatePosition(1, -MOVE_STEP)}
                 >
                   ▼
                 </button>
                 <button
-                  style={btnStyle}
+                  style={styles.controlBtn}
                   onClick={() => updatePosition(1, MOVE_STEP)}
                 >
                   ▲
@@ -332,23 +199,17 @@ export default function App() {
               </div>
             </div>
 
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <span style={{ fontSize: "13px" }}>Maju / Mundur (Z):</span>
-              <div style={{ display: "flex", gap: "5px" }}>
+            <div style={styles.controlRow}>
+              <span style={styles.controlLabel}>Maju / Mundur (Z)</span>
+              <div style={styles.btnRow}>
                 <button
-                  style={btnStyle}
+                  style={styles.controlBtn}
                   onClick={() => updatePosition(2, -MOVE_STEP)}
                 >
                   👁️‍🗨️-
                 </button>
                 <button
-                  style={btnStyle}
+                  style={styles.controlBtn}
                   onClick={() => updatePosition(2, MOVE_STEP)}
                 >
                   👁️‍🗨️+
@@ -358,32 +219,20 @@ export default function App() {
           </div>
 
           {/* SEKSI ROTASI */}
-          <div
-            style={{ display: "flex", flexDirection: "column", gap: "10px" }}
-          >
-            <span
-              style={{ fontWeight: "bold", fontSize: "14px", color: "#555" }}
-            >
-              🔄 Mengatur Rotasi
-            </span>
+          <div style={styles.controlGroup}>
+            <span style={styles.controlGroupTitle}>🔄 Mengatur Rotasi</span>
 
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <span style={{ fontSize: "13px" }}>Tunduk / Dongak (X):</span>
-              <div style={{ display: "flex", gap: "5px" }}>
+            <div style={styles.controlRow}>
+              <span style={styles.controlLabel}>Tunduk / Dongak (X)</span>
+              <div style={styles.btnRow}>
                 <button
-                  style={btnStyle}
+                  style={styles.controlBtn}
                   onClick={() => updateRotation(0, -ROTATE_STEP)}
                 >
                   ↷
                 </button>
                 <button
-                  style={btnStyle}
+                  style={styles.controlBtn}
                   onClick={() => updateRotation(0, ROTATE_STEP)}
                 >
                   ↶
@@ -391,23 +240,17 @@ export default function App() {
               </div>
             </div>
 
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <span style={{ fontSize: "13px" }}>Hadap Kanan/Kiri (Y):</span>
-              <div style={{ display: "flex", gap: "5px" }}>
+            <div style={styles.controlRow}>
+              <span style={styles.controlLabel}>Hadap Ka/Ki (Y)</span>
+              <div style={styles.btnRow}>
                 <button
-                  style={btnStyle}
+                  style={styles.controlBtn}
                   onClick={() => updateRotation(1, -ROTATE_STEP)}
                 >
                   ⤾
                 </button>
                 <button
-                  style={btnStyle}
+                  style={styles.controlBtn}
                   onClick={() => updateRotation(1, ROTATE_STEP)}
                 >
                   ⤿
@@ -415,23 +258,17 @@ export default function App() {
               </div>
             </div>
 
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <span style={{ fontSize: "13px" }}>Miring Kanan/Kiri (Z):</span>
-              <div style={{ display: "flex", gap: "5px" }}>
+            <div style={styles.controlRow}>
+              <span style={styles.controlLabel}>Miring Ka/Ki (Z)</span>
+              <div style={styles.btnRow}>
                 <button
-                  style={btnStyle}
+                  style={styles.controlBtn}
                   onClick={() => updateRotation(2, -ROTATE_STEP)}
                 >
                   ↻
                 </button>
                 <button
-                  style={btnStyle}
+                  style={styles.controlBtn}
                   onClick={() => updateRotation(2, ROTATE_STEP)}
                 >
                   ↺
@@ -440,20 +277,7 @@ export default function App() {
             </div>
           </div>
 
-          {/* TOMBOL RESET */}
-          <button
-            onClick={handleResetTransform}
-            style={{
-              marginTop: "10px",
-              padding: "8px",
-              backgroundColor: "#dc3545",
-              color: "white",
-              border: "none",
-              borderRadius: "4px",
-              fontWeight: "bold",
-              cursor: "pointer",
-            }}
-          >
+          <button onClick={handleResetTransform} style={styles.resetButton}>
             🔄 Reset Posisi Teks
           </button>
         </div>
@@ -461,3 +285,207 @@ export default function App() {
     </div>
   );
 }
+
+// ==========================================
+// CENTRALIZED STYLES OBJECT (CLEAN DESIGN)
+// ==========================================
+const styles: Record<string, React.CSSProperties> = {
+  container: {
+    fontFamily: "'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+    padding: "30px",
+    backgroundColor: "#f4f6f9",
+    minHeight: "100vh",
+    color: "#333",
+  },
+  title: {
+    textAlign: "center",
+    margin: "0 0 30px 0",
+    color: "#2c3e50",
+    fontWeight: 700,
+  },
+  workspace: {
+    display: "flex",
+    gap: "25px",
+    maxWidth: "1200px",
+    margin: "0 auto",
+    alignItems: "flex-start",
+  },
+  sidebarLeft: {
+    width: "220px",
+    backgroundColor: "#ffffff",
+    padding: "20px",
+    borderRadius: "12px",
+    boxShadow: "0 4px 6px rgba(0,0,0,0.05)",
+  },
+  sectionTitle: {
+    margin: "0 0 15px 0",
+    fontSize: "16px",
+    color: "#4a5568",
+    borderBottom: "2px solid #edf2f7",
+    paddingBottom: "8px",
+  },
+  buttonGroupVertical: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "10px",
+  },
+  modelButton: {
+    padding: "12px 15px",
+    borderRadius: "8px",
+    border: "1px solid #e2e8f0",
+    backgroundColor: "#ffffff",
+    color: "#4a5568",
+    fontWeight: "500",
+    cursor: "pointer",
+    textAlign: "left",
+    transition: "all 0.2s ease",
+  },
+  modelButtonActive: {
+    border: "2px solid #3182ce",
+    backgroundColor: "#ebf8ff",
+    color: "#2b6cb0",
+    fontWeight: "bold",
+  },
+  mainContent: {
+    flex: 1,
+    backgroundColor: "#ffffff",
+    padding: "25px",
+    borderRadius: "12px",
+    boxShadow: "0 4px 6px rgba(0,0,0,0.05)",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: "20px",
+  },
+  inputWrapper: {
+    display: "flex",
+    flexDirection: "column",
+    width: "100%",
+    maxWidth: "450px",
+    gap: "8px",
+  },
+  label: {
+    fontWeight: "600",
+    fontSize: "14px",
+    color: "#4a5568",
+  },
+  textInput: {
+    padding: "12px",
+    borderRadius: "8px",
+    border: "1px solid #cbd5e0",
+    fontSize: "16px",
+    outline: "none",
+    transition: "border-color 0.2s",
+  },
+  colorPickerContainer: {
+    display: "flex",
+    gap: "10px",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    width: "100%",
+  },
+  colorCard: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    border: "1px solid #e2e8f0",
+    padding: "8px 14px",
+    borderRadius: "8px",
+    backgroundColor: "#f7fafc",
+    minWidth: "70px",
+  },
+  colorLabel: {
+    fontSize: "11px",
+    fontWeight: "bold",
+    marginBottom: "6px",
+    textTransform: "capitalize",
+    color: "#718096",
+  },
+  colorInput: {
+    border: "none",
+    width: "35px",
+    height: "35px",
+    borderRadius: "50%",
+    cursor: "pointer",
+    backgroundColor: "transparent",
+  },
+  canvasContainer: {
+    border: "2px solid #e2e8f0",
+    borderRadius: "16px",
+    overflow: "hidden",
+    backgroundColor: "#edf2f7",
+    boxShadow: "inset 0 2px 4px rgba(0,0,0,0.06)",
+  },
+  downloadButton: {
+    padding: "14px 40px",
+    backgroundColor: "#38a169",
+    color: "white",
+    border: "none",
+    borderRadius: "8px",
+    fontSize: "16px",
+    fontWeight: "bold",
+    cursor: "pointer",
+    boxShadow: "0 4px 6px rgba(56, 161, 105, 0.2)",
+    transition: "background-color 0.2s",
+  },
+  sidebarRight: {
+    width: "260px",
+    backgroundColor: "#ffffff",
+    padding: "20px",
+    borderRadius: "12px",
+    boxShadow: "0 4px 6px rgba(0,0,0,0.05)",
+    display: "flex",
+    flexDirection: "column",
+    gap: "20px",
+  },
+  controlGroup: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "12px",
+    borderBottom: "1px solid #edf2f7",
+    paddingBottom: "15px",
+  },
+  controlGroupTitle: {
+    fontWeight: "700",
+    fontSize: "14px",
+    color: "#4a5568",
+    marginBottom: "4px",
+  },
+  controlRow: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: "10px",
+  },
+  controlLabel: {
+    fontSize: "12px",
+    color: "#718096",
+    fontWeight: "500",
+  },
+  btnRow: {
+    display: "flex",
+    gap: "6px",
+  },
+  controlBtn: {
+    padding: "6px 12px",
+    fontSize: "12px",
+    fontWeight: "bold",
+    cursor: "pointer",
+    backgroundColor: "#ffffff",
+    border: "1px solid #cbd5e0",
+    borderRadius: "6px",
+    transition: "all 0.15s ease",
+    color: "#4a5568",
+  },
+  resetButton: {
+    marginTop: "5px",
+    padding: "10px",
+    backgroundColor: "#e53e3e",
+    color: "white",
+    border: "none",
+    borderRadius: "6px",
+    fontWeight: "bold",
+    cursor: "pointer",
+    boxShadow: "0 2px 4px rgba(229, 62, 62, 0.2)",
+  },
+};
