@@ -12,6 +12,7 @@ const EMOJI_LIST = [
   { id: "mad", name: "Mad Emoji", file: "/models/mad_emoji.glb" },
   { id: "cool", name: "Cool Emoji", file: "/models/cool_emoji.glb" },
   { id: "smile", name: "Smile Emoji", file: "/models/smile_emoji.glb" },
+  { id: "sad", name: "Sad Emoji", file: "/models/sad_emoji.glb" },
 ];
 
 const DEFAULT_PICKER_COLOR = "#ffffff";
