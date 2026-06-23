@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import EmojiViewer from "./components/EmojiViewer";
 
 const EMOJI_LIST = [
@@ -6,15 +6,64 @@ const EMOJI_LIST = [
   { id: "drunk", name: "Drunk Emoji", file: "/models/drunk_emoji.glb" },
   { id: "horn", name: "Horn Emoji", file: "/models/horn_emoji.glb" },
   { id: "money", name: "Money Emoji", file: "/models/money_emoji.glb" },
+  { id: "angel", name: "Angel Emoji", file: "/models/angel_emoji.glb" },
+  { id: "love", name: "Love Emoji", file: "/models/love_emoji.glb" },
+  { id: "confuse", name: "Confused Emoji", file: "/models/confuse_emoji.glb" },
+  { id: "mad", name: "Mad Emoji", file: "/models/mad_emoji.glb" },
+  { id: "cool", name: "Cool Emoji", file: "/models/cool_emoji.glb" },
 ];
 
-const DEFAULT_COLOR = "#666666";
-const INITIAL_POSITION: [number, number, number] = [0, 1.8, 0];
+const DEFAULT_PICKER_COLOR = "#ffffff";
+
+// Nilai Y awal diatur kecil karena di EmojiViewer akan ditambahkan dengan tinggi model emoji
+const INITIAL_POSITION: [number, number, number] = [0, 0.2, 0];
 const INITIAL_ROTATION: [number, number, number] = [0, 0, 0];
 
-const MOVE_STEP = 0.1;
-const ROTATE_STEP = 0.1;
+const MOVE_STEP = 0.05; // Halus untuk long press
+const ROTATE_STEP = 0.05; // Halus untuk long press
 
+// Komponen Kustom Tombol Mandiri dengan Fitur Long Press
+interface LongPressButtonProps {
+  onAction: () => void;
+  children: React.ReactNode;
+  style?: React.CSSProperties;
+}
+
+function LongPressButton({ onAction, children, style }: LongPressButtonProps) {
+  // Menggunakan 'number' standar browser agar terhindar dari error NodeJS namespace
+  const timerRef = useRef<number | null>(null);
+
+  const startAction = () => {
+    onAction(); // Eksekusi langsung sekali saat pertama ditekan
+
+    // Jalankan interval berulang setiap 80ms jika terus ditahan
+    timerRef.current = window.setInterval(() => {
+      onAction();
+    }, 80);
+  };
+
+  const stopAction = () => {
+    if (timerRef.current !== null) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+  };
+
+  return (
+    <button
+      style={style}
+      onMouseDown={startAction}
+      onMouseUp={stopAction}
+      onMouseLeave={stopAction}
+      onTouchStart={startAction} // Dukungan Mobile/HP
+      onTouchEnd={stopAction}
+    >
+      {children}
+    </button>
+  );
+}
+
+// Komponen Utama Aplikasi
 export default function App() {
   const [currentModel, setCurrentModel] = useState(EMOJI_LIST[0]);
   const [emojiColors, setEmojiColors] = useState<Record<string, string>>({});
@@ -24,14 +73,15 @@ export default function App() {
     useState<[number, number, number]>(INITIAL_POSITION);
   const [textRotation, setTextRotation] =
     useState<[number, number, number]>(INITIAL_ROTATION);
+  const [resetCount, setResetCount] = useState(0);
 
   const handlePartsDetected = (parts: string[]) => {
     setEmojiColors((prevColors) => {
       const updatedColors = { ...prevColors };
       let hasChange = false;
       parts.forEach((partName) => {
-        if (!updatedColors[partName]) {
-          updatedColors[partName] = DEFAULT_COLOR;
+        if (updatedColors[partName] === undefined) {
+          updatedColors[partName] = "";
           hasChange = true;
         }
       });
@@ -69,6 +119,10 @@ export default function App() {
   const handleResetTransform = () => {
     setTextPosition(INITIAL_POSITION);
     setTextRotation(INITIAL_ROTATION);
+  };
+
+  const handleResetEmojiPosition = () => {
+    setResetCount((prev) => prev + 1);
   };
 
   const handleDownloadSticker = () => {
@@ -130,7 +184,7 @@ export default function App() {
                 <span style={styles.colorLabel}>{partName}</span>
                 <input
                   type="color"
-                  value={emojiColors[partName]}
+                  value={emojiColors[partName] || DEFAULT_PICKER_COLOR}
                   onChange={(e) => handleColorChange(partName, e.target.value)}
                   style={styles.colorInput}
                 />
@@ -147,6 +201,7 @@ export default function App() {
               textPosition={textPosition}
               textRotation={textRotation}
               onPartsDetected={handlePartsDetected}
+              resetTrigger={resetCount}
             />
           </div>
 
@@ -166,54 +221,54 @@ export default function App() {
             <div style={styles.controlRow}>
               <span style={styles.controlLabel}>Kiri / Kanan (X)</span>
               <div style={styles.btnRow}>
-                <button
+                <LongPressButton
                   style={styles.controlBtn}
-                  onClick={() => updatePosition(0, -MOVE_STEP)}
+                  onAction={() => updatePosition(0, -MOVE_STEP)}
                 >
                   ◀
-                </button>
-                <button
+                </LongPressButton>
+                <LongPressButton
                   style={styles.controlBtn}
-                  onClick={() => updatePosition(0, MOVE_STEP)}
+                  onAction={() => updatePosition(0, MOVE_STEP)}
                 >
                   ▶
-                </button>
+                </LongPressButton>
               </div>
             </div>
 
             <div style={styles.controlRow}>
               <span style={styles.controlLabel}>Atas / Bawah (Y)</span>
               <div style={styles.btnRow}>
-                <button
+                <LongPressButton
                   style={styles.controlBtn}
-                  onClick={() => updatePosition(1, -MOVE_STEP)}
+                  onAction={() => updatePosition(1, -MOVE_STEP)}
                 >
                   ▼
-                </button>
-                <button
+                </LongPressButton>
+                <LongPressButton
                   style={styles.controlBtn}
-                  onClick={() => updatePosition(1, MOVE_STEP)}
+                  onAction={() => updatePosition(1, MOVE_STEP)}
                 >
                   ▲
-                </button>
+                </LongPressButton>
               </div>
             </div>
 
             <div style={styles.controlRow}>
               <span style={styles.controlLabel}>Maju / Mundur (Z)</span>
               <div style={styles.btnRow}>
-                <button
+                <LongPressButton
                   style={styles.controlBtn}
-                  onClick={() => updatePosition(2, -MOVE_STEP)}
+                  onAction={() => updatePosition(2, -MOVE_STEP)}
                 >
                   👁️‍🗨️-
-                </button>
-                <button
+                </LongPressButton>
+                <LongPressButton
                   style={styles.controlBtn}
-                  onClick={() => updatePosition(2, MOVE_STEP)}
+                  onAction={() => updatePosition(2, MOVE_STEP)}
                 >
                   👁️‍🗨️+
-                </button>
+                </LongPressButton>
               </div>
             </div>
           </div>
@@ -225,54 +280,54 @@ export default function App() {
             <div style={styles.controlRow}>
               <span style={styles.controlLabel}>Tunduk / Dongak (X)</span>
               <div style={styles.btnRow}>
-                <button
+                <LongPressButton
                   style={styles.controlBtn}
-                  onClick={() => updateRotation(0, -ROTATE_STEP)}
+                  onAction={() => updateRotation(0, -ROTATE_STEP)}
                 >
                   ↷
-                </button>
-                <button
+                </LongPressButton>
+                <LongPressButton
                   style={styles.controlBtn}
-                  onClick={() => updateRotation(0, ROTATE_STEP)}
+                  onAction={() => updateRotation(0, ROTATE_STEP)}
                 >
                   ↶
-                </button>
+                </LongPressButton>
               </div>
             </div>
 
             <div style={styles.controlRow}>
               <span style={styles.controlLabel}>Hadap Ka/Ki (Y)</span>
               <div style={styles.btnRow}>
-                <button
+                <LongPressButton
                   style={styles.controlBtn}
-                  onClick={() => updateRotation(1, -ROTATE_STEP)}
+                  onAction={() => updateRotation(1, -ROTATE_STEP)}
                 >
                   ⤾
-                </button>
-                <button
+                </LongPressButton>
+                <LongPressButton
                   style={styles.controlBtn}
-                  onClick={() => updateRotation(1, ROTATE_STEP)}
+                  onAction={() => updateRotation(1, ROTATE_STEP)}
                 >
                   ⤿
-                </button>
+                </LongPressButton>
               </div>
             </div>
 
             <div style={styles.controlRow}>
               <span style={styles.controlLabel}>Miring Ka/Ki (Z)</span>
               <div style={styles.btnRow}>
-                <button
+                <LongPressButton
                   style={styles.controlBtn}
-                  onClick={() => updateRotation(2, -ROTATE_STEP)}
+                  onAction={() => updateRotation(2, -ROTATE_STEP)}
                 >
                   ↻
-                </button>
-                <button
+                </LongPressButton>
+                <LongPressButton
                   style={styles.controlBtn}
-                  onClick={() => updateRotation(2, ROTATE_STEP)}
+                  onAction={() => updateRotation(2, ROTATE_STEP)}
                 >
                   ↺
-                </button>
+                </LongPressButton>
               </div>
             </div>
           </div>
@@ -280,15 +335,19 @@ export default function App() {
           <button onClick={handleResetTransform} style={styles.resetButton}>
             🔄 Reset Posisi Teks
           </button>
+
+          <button
+            onClick={handleResetEmojiPosition}
+            style={styles.resetEmojiButton}
+          >
+            🤖 Reset Posisi Emoji
+          </button>
         </div>
       </div>
     </div>
   );
 }
 
-// ==========================================
-// CENTRALIZED STYLES OBJECT (CLEAN DESIGN)
-// ==========================================
 const styles: Record<string, React.CSSProperties> = {
   container: {
     fontFamily: "'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
@@ -339,6 +398,7 @@ const styles: Record<string, React.CSSProperties> = {
     cursor: "pointer",
     textAlign: "left",
     transition: "all 0.2s ease",
+    userSelect: "none",
   },
   modelButtonActive: {
     border: "2px solid #3182ce",
@@ -476,6 +536,8 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: "6px",
     transition: "all 0.15s ease",
     color: "#4a5568",
+    userSelect: "none",
+    WebkitUserSelect: "none",
   },
   resetButton: {
     marginTop: "5px",
@@ -487,5 +549,16 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: "bold",
     cursor: "pointer",
     boxShadow: "0 2px 4px rgba(229, 62, 62, 0.2)",
+  },
+  resetEmojiButton: {
+    padding: "10px",
+    backgroundColor: "#3182ce",
+    color: "white",
+    border: "none",
+    borderRadius: "6px",
+    fontWeight: "bold",
+    cursor: "pointer",
+    boxShadow: "0 2px 4px rgba(49, 130, 206, 0.2)",
+    transition: "background-color 0.15s",
   },
 };
