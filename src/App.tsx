@@ -15,6 +15,11 @@ const EMOJI_LIST = [
   { id: "sad", name: "Sad Emoji", file: "/models/sad_emoji.glb" },
   { id: "blush", name: "Blush Emoji", file: "/models/blush_emoji.glb" },
   {
+    id: "surprised",
+    name: "Surprised Emoji",
+    file: "/models/surprised_emoji.glb",
+  },
+  {
     id: "rolleyes",
     name: "Roll Eyes Emoji",
     file: "/models/rolleyes_emoji.glb",
