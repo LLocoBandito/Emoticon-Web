@@ -11,14 +11,9 @@ const EMOJI_LIST = [
   { id: "confuse", name: "Confused Emoji", file: "/models/confuse_emoji.glb" },
   { id: "mad", name: "Mad Emoji", file: "/models/mad_emoji.glb" },
   { id: "cool", name: "Cool Emoji", file: "/models/cool_emoji.glb" },
-  { id: "smile", name: "Smile Emoji", file: "/models/smilly_emoji.glb" },
+  { id: "smile", name: "Smile Emoji", file: "/models/smile_emoji.glb" },
   { id: "sad", name: "Sad Emoji", file: "/models/sad_emoji.glb" },
   { id: "blush", name: "Blush Emoji", file: "/models/blush_emoji.glb" },
-  {
-    id: "surprised",
-    name: "Surprised Emoji",
-    file: "/models/surprised_emoji.glb",
-  },
   {
     id: "rolleyes",
     name: "Roll Eyes Emoji",
