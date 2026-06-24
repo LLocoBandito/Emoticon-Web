@@ -19,6 +19,11 @@ const EMOJI_LIST = [
     name: "Roll Eyes Emoji",
     file: "/models/rolleyes_emoji.glb",
   },
+  {
+    id: "surprised",
+    name: "Surprised Emoji",
+    file: "/models/surprised_emoji.glb",
+  },
 ];
 
 const DEFAULT_PICKER_COLOR = "#ffffff";
